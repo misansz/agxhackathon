@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Farm Manaigment — AGX Hackathon pitch</title><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap"><style>* { margin: 0 }
+html { background: #0c1510 }
+body { font: 32px/1.2 sans-serif; width: 1920px; transform-origin: 0 0 }
+body > section { width: 1920px; height: 1080px; overflow: hidden; box-sizing: border-box; position: relative; isolation: isolate; margin-bottom: 24px; break-after: page }
+aside { display: none }
+h1 { font-size: 96px; font-weight: 600 } h2 { font-size: 64px; font-weight: 600 } h3 { font-size: 44px; font-weight: 600 }
+p, li, h1, h2, h3, td, th { overflow-wrap: break-word; text-wrap: pretty }
+x-shape { display: block }
+@page { size: 1920px 1080px; margin: 0 }
+@media print { html { background: none } body { zoom: 1 !important } body > section { margin: 0 } }</style>
+<style>
+/* Run the Fleet — shared look, cloned from the Google Slides deck.
+   Palette: dark #14231B, light #F4F1E8, accent #E8A33D, accent-dark #9A5A12.
+   Type: Space Grotesk (headings), Inter (text), JetBrains Mono (labels). */
+
+section { counter-increment: page; }
+
+/* ---------- slide shells ---------- */
+.slide {
+  padding: 128px 128px 160px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', Arial, sans-serif;
+}
+.light { background: #F4F1E8; color: #4A5048; }
+.dark { background: #14231B; color: #C3CFC0; }
+.accent { background: #E8A33D; color: #14231B; }
+
+/* ---------- heading block ---------- */
+.eyebrow {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  line-height: 1.3;
+}
+.light .eyebrow { color: #9A5A12; }
+.dark .eyebrow { color: #E8A33D; }
+.accent .eyebrow { color: #14231B; }
+
+.title {
+  font-family: 'Space Grotesk', Arial, sans-serif;
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-top: 14px;
+}
+.light .title { color: #14231B; }
+.dark .title { color: #F4F1E8; }
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: 32px;
+}
+.grow { flex: 1; }
+
+/* ---------- footer band ---------- */
+.foot {
+  position: absolute;
+  left: 128px;
+  top: 984px;
+  width: 1664px;
+  height: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.foot-text {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 24px;
+  line-height: 1.3;
+}
+.light .foot-text { color: #4A5048; }
+.dark .foot-text { color: #8FA08C; }
+.accent .foot-text { color: #14231B; }
+.pg {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 24px;
+  line-height: 1.3;
+}
+.pg::after { content: counter(page); }
+.light .pg { color: #4A5048; }
+.dark .pg { color: #8FA08C; }
+
+/* ---------- cover and closing ---------- */
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 36px;
+}
+.hero-title {
+  font-family: 'Space Grotesk', Arial, sans-serif;
+  font-size: 120px;
+  font-weight: 700;
+  line-height: 1.08;
+}
+.dark .hero-title { color: #F4F1E8; }
+.accent .hero-title { color: #14231B; width: 1400px; }
+.hero-sub {
+  font-family: 'Space Grotesk', Arial, sans-serif;
+  font-size: 44px;
+  font-weight: 400;
+  line-height: 1.3;
+  width: 1040px;
+}
+.dark .hero-sub { color: #F4F1E8; }
+.accent .hero-sub { color: #14231B; }
+.hero-foot { display: flex; gap: 56px; }
+.cover-art { position: absolute; left: 1158px; top: 0; width: 762px; height: 1080px; }
+
+/* ---------- cards ---------- */
+.cards { display: grid; gap: 32px; flex: 1; }
+.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.cols-2 { grid-template-columns: 1fr 1fr; }
+.rows-2 { grid-template-rows: 1fr 1fr; }
+.card {
+  background: #E9E4D5;
+  border-radius: 12px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.dark .card { background: #1E3327; }
+.card-mid { justify-content: center; }
+.ico { width: 54px; height: 54px; color: #9A5A12; }
+.kicker {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 24px;
+  line-height: 1.3;
+  color: #9A5A12;
+}
+.card-title {
+  font-family: 'Space Grotesk', Arial, sans-serif;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #14231B;
+}
+.dark .card-title { color: #F4F1E8; }
+.card-text { font-size: 28px; line-height: 1.45; }
+
+/* ---------- running text ---------- */
+.lede { font-size: 32px; line-height: 1.4; color: #14231B; }
+.fine { font-size: 24px; line-height: 1.45; }
+.para { font-size: 32px; line-height: 1.4; color: #14231B; }
+.lead {
+  font-family: 'Space Grotesk', Arial, sans-serif;
+  font-size: 44px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: #F4F1E8;
+}
+
+/* ---------- two columns and check lists ---------- */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; }
+.split-card { display: grid; grid-template-columns: 1fr 560px; gap: 48px; }
+.split-rt { display: grid; grid-template-columns: 616px 1fr; gap: 56px; }
+.col { display: flex; flex-direction: column; gap: 24px; }
+.chk { display: flex; gap: 20px; align-items: flex-start; }
+.chk-ico { width: 34px; height: 34px; color: #9A5A12; margin-top: 3px; }
+.chk-text { font-size: 28px; line-height: 1.45; flex: 1; }
+
+/* ---------- timeline ---------- */
+.timeline { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 24px; }
+.ev { display: flex; flex-direction: column; gap: 10px; }
+.tick { border-top: 4px solid #E8A33D; }
+.ev-time {
+  font-family: 'Space Grotesk', Arial, sans-serif;
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #14231B;
+  margin-top: 24px;
+}
+
+/* ---------- table ---------- */
+.tbl { width: 100%; font-family: 'Inter', Arial, sans-serif; font-size: 28px; color: #4A5048; }
+.tr-head { background: #E9E4D5; }
+.tr-row { background: #FBF9F3; }
+.tr-hot { background: #F0E3C8; }
+.num { text-align: right; }
+.num-strong { text-align: right; color: #14231B; }
+
+/* ---------- big numbers ---------- */
+.stat {
+  background: #1E3327;
+  border-radius: 12px;
+  border-left: 6px solid #E8A33D;
+  padding: 32px 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.stat-num {
+  font-family: 'Space Grotesk', Arial, sans-serif;
+  font-size: 96px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #F4F1E8;
+}
+.light .stat-num { color: #14231B; }
+.stat-text { font-size: 28px; line-height: 1.45; color: #C3CFC0; }
+
+/* ---------- diagrams: nodes, arrows, rows ---------- */
+.flow { display: flex; align-items: center; gap: 28px; }
+.arrow { width: 64px; height: 32px; background: #E8A33D; }
+.light .arrow { background: #9A5A12; }
+.node {
+  background: #1E3327;
+  border-radius: 12px;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.light .node { background: #E9E4D5; }
+.slide .node-hot { background: #E8A33D; }
+.node-title {
+  font-family: 'Space Grotesk', Arial, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #F4F1E8;
+}
+.light .node-title { color: #14231B; }
+.slide .node-hot .node-title { color: #14231B; }
+.node-mono {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 24px;
+  line-height: 1.3;
+  color: #9A5A12;
+}
+.slide .node-hot .node-mono { color: #5E3608; }
+.node-text { font-size: 24px; line-height: 1.4; color: #C3CFC0; }
+.light .node-text { color: #4A5048; }
+.slide .node-hot .node-text { color: #14231B; }
+.arch-op { width: 300px; }
+.arch-co { width: 380px; }
+.live-co { width: 380px; }
+
+.stack { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+.row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: #1E3327;
+  border-radius: 8px;
+  padding: 14px 24px;
+}
+.row-name {
+  font-family: 'Space Grotesk', Arial, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #F4F1E8;
+  width: 230px;
+}
+.row-text { font-size: 24px; line-height: 1.4; color: #C3CFC0; flex: 1; }
+.slide .row-hot { background: #E8A33D; }
+.slide .row-hot .row-name { color: #14231B; }
+.slide .row-hot .row-text { color: #14231B; }
+
+/* ---------- pitch slides ---------- */
+.sub {
+  font-family: 'Space Grotesk', Arial, sans-serif;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #14231B;
+}
+.dark .sub { color: #F4F1E8; }
+.block { display: flex; flex-direction: column; gap: 8px; }
+.light .stat { background: #E9E4D5; }
+.light .stat-text { color: #4A5048; }
+.slide .stat-num-md { font-size: 72px; }
+.slide .tbl-sm { font-size: 28px; }
+.lbl { color: #14231B; }
+.split-shot { display: grid; grid-template-columns: 640px 1fr; gap: 48px; align-items: center; }
+.split-spray { display: grid; grid-template-columns: 1fr 590px; gap: 56px; align-items: center; }
+.pillars { display: flex; flex-direction: column; gap: 12px; }
+.slide .pillar { padding: 16px 28px; }
+.shot { width: 976px; height: 610px; object-fit: contain; border-radius: 12px; border: 2px solid #D8D1BE; }
+.shot-card { width: 590px; height: 628px; object-fit: contain; border-radius: 12px; border: 2px solid #D8D1BE; }
+
+.lanes { flex: 1; display: flex; flex-direction: column; gap: 22px; }
+.lane { display: flex; align-items: center; gap: 28px; }
+.lane-node { flex: 1; }
+</style></head>
+<body>
+<section id="cover" class="slide dark" data-transition="fade">
+<svg class="cover-art" width="762" height="1080" viewBox="0 0 762 1080" aria-label="Field rows with a dashed tractor route crossing them">
+<g stroke="#1E3327" stroke-width="52" stroke-linecap="round" fill="none">
+<line x1="35" y1="1032" x2="258" y2="72"/>
+<line x1="126" y1="1140" x2="405" y2="-60"/>
+<line x1="232" y1="1140" x2="511" y2="-60"/>
+<line x1="338" y1="1140" x2="596" y2="30"/>
+<line x1="444" y1="1140" x2="723" y2="-60"/>
+<line x1="550" y1="1140" x2="829" y2="-60"/>
+<line x1="656" y1="1140" x2="935" y2="-60"/>
+</g>
+<path d="M95 1090 C 140 820, 300 560, 481 468 S 690 310, 770 196" fill="none" stroke="#E8A33D" stroke-width="4" stroke-dasharray="16 12" stroke-linecap="round"/>
+<circle cx="481" cy="468" r="44" fill="none" stroke="#E8A33D" stroke-width="2" opacity="0.55"/>
+<circle cx="481" cy="468" r="20" fill="#E8A33D"/>
+</svg>
+<p class="eyebrow">AGX HACKATHON · RUN THE FLEET + SPRAY OR WAIT</p>
+<div class="hero">
+<h1 class="hero-title">Farm Man<span style="color:#DAA800">ai</span>gment</h1>
+<p class="hero-sub">Fleet management that knows your farm, checks your fields, builds the day’s schedule, and keeps AI watching every factor while the work runs.</p>
+</div>
+<div class="hero-foot">
+<p class="foot-text">Team 5</p>
+<p class="foot-text">github.com/misansz/agxhackathon</p>
+</div>
+<aside>We built fleet management for autonomous tractors. It knows your farm and how each field is doing, it has the tools to check, it builds the day’s schedule, and a team of AI managers watches every factor while the work runs. One system, and it answers two tracks: Run the Fleet and Spray or Wait. (About 20 seconds.)</aside>
+</section>
+<section id="problem" class="slide light" data-transition="fade">
+<p class="eyebrow">THE PROBLEM</p>
+<h2 class="title">A farm day rarely goes to plan</h2>
+<div class="body">
+<div class="cards cols-3">
+<div class="card">
+<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+<h3 class="card-title">Machines break</h3>
+<p class="card-text">The main sprayer stops mid-morning, and its jobs still have deadlines.</p>
+</div>
+<div class="card">
+<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+<h3 class="card-title">The air turns</h3>
+<p class="card-text">An inversion or a gust, and spray drifts off the field. A reading at ground level can miss it.</p>
+</div>
+<div class="card">
+<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<h3 class="card-title">Priorities shift</h3>
+<p class="card-text">Rain is forecast, so a hay field jumps the queue. Urgent jobs arrive mid-day.</p>
+</div>
+</div>
+<p class="lede">A first-come, first-served dispatcher ignores priority and deadlines, and it misses deadlines without warning anyone.</p>
+</div>
+<div class="foot">
+<p class="foot-text">Farm Manaigment</p>
+<div class="pg"></div>
+</div>
+<aside>Three things break a farm plan before lunch: a machine goes down, the air turns against spraying, or priorities change. The usual answer is first come, first served, and that misses deadlines without telling anyone. (About 15 seconds.)</aside>
+</section>
+<section id="market" class="slide light" data-transition="fade">
+<p class="eyebrow">THE MARKET</p>
+<h2 class="title">More machines, fewer people to run them</h2>
+<div class="body">
+<div class="cards cols-2 rows-2">
+<div class="stat">
+<p class="stat-num stat-num-md">$12.8B → $21.2B</p>
+<p class="stat-text">Precision farming market, 2025 to 2030, growing 10.6% a year.</p>
+</div>
+<div class="stat">
+<p class="stat-num stat-num-md">$3.9B</p>
+<p class="stat-text">Autonomous tractors in 2025, forecast to grow about 16% a year to 2034.</p>
+</div>
+<div class="stat">
+<p class="stat-num stat-num-md">85K → 379K</p>
+<p class="stat-text">H-2A farm worker positions certified, 2012 to 2024. Farms cannot find enough hands.</p>
+</div>
+<div class="stat">
+<p class="stat-num stat-num-md">90%</p>
+<p class="stat-text">of US leafy greens from November to March come from Yuma. Our demo farm sits in the Yuma Valley.</p>
+</div>
+</div>
+<p class="lede">Every autonomous tractor needs something to coordinate it. That layer is what we built.</p>
+</div>
+<div class="foot">
+<p class="foot-text">Sources: BCC Research · IMARC · Farm Bureau · University of Arizona</p>
+<div class="pg"></div>
+</div>
+<aside>Why this matters now. Precision farming is a 12.8 billion dollar market heading to 21 billion by 2030 (BCC Research). Autonomous tractors alone are about 3.9 billion and growing 16 percent a year (IMARC). Meanwhile labour is scarce: H-2A certified positions went from 85 thousand in 2012 to 379 thousand in 2024 (Farm Bureau). And this is local: Yuma supplies about 90 percent of the country’s winter leafy greens (University of Arizona), and our demo farm is placed in the Yuma Valley. More machines and fewer people means someone has to coordinate the fleet. Market figures are third-party estimates and vary by publisher. (About 25 seconds.)</aside>
+</section>
+<section id="product" class="slide light" data-transition="fade">
+<p class="eyebrow">WHAT WE BUILT</p>
+<h2 class="title">Fleet management that knows your farm</h2>
+<div class="body">
+<div class="split-shot grow">
+<div class="pillars">
+<div class="node pillar">
+<h3 class="node-title">Knows your farm</h3>
+<p class="node-text">A record per field: crop, planting date, ground state.</p>
+</div>
+<div class="node pillar">
+<h3 class="node-title">Has the tools to check</h3>
+<p class="node-text">A scout drone surveys fields; telemetry 4× a second.</p>
+</div>
+<div class="node pillar">
+<h3 class="node-title">Builds the schedule</h3>
+<p class="node-text">Right tractor, tool and fuel; re-plans in milliseconds.</p>
+</div>
+<div class="node pillar">
+<h3 class="node-title">Watches the whole day</h3>
+<p class="node-text">AI managers follow faults, weather, fuel and deadlines.</p>
+</div>
+</div>
+<img class="shot" src="img/status-page.jpg" alt="The live status page: farm map with nine fields and crop heatmaps, today’s jobs, a card per vehicle, spray conditions showing Stop, the scout drone camera and the roundtable" style="width:976px;height:610px;object-fit:contain">
+</div>
+</div>
+<div class="foot">
+<p class="foot-text">The status page, captured from a live run on four AgOpenWeb vehicles</p>
+<div class="pg"></div>
+</div>
+<aside>This is the product, captured from a live run. It knows your farm: every field has a record of its crop, planting date and ground state, kept in that field’s own AgOpenWeb folder. It has the tools to check: a scout drone surveys the fields and each vehicle reports telemetry four times a second. It builds the schedule: the right tractor, implement and fuel for every job, and it re-plans in milliseconds when something changes. And AI managers watch the whole day. With Let the AI drive switched on, it queues the work each field needs by itself. (About 25 seconds.)</aside>
+</section>
+<section id="brief" class="slide light" data-transition="fade">
+<p class="eyebrow">THE BRIEF</p>
+<h2 class="title">Five must-haves, five stretch goals: all met</h2>
+<div class="body">
+<div class="split grow">
+<div class="col">
+<h3 class="sub">Must-haves</h3>
+<div class="chk"><svg class="chk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p class="chk-text">Takes an operator’s job list</p></div>
+<div class="chk"><svg class="chk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p class="chk-text">Assigns compatible tractors: implement, fuel, deadline</p></div>
+<div class="chk"><svg class="chk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p class="chk-text">Shows progress on a live map and dashboard</p></div>
+<div class="chk"><svg class="chk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p class="chk-text">Recovers from a breakdown: no conflicts, no lost work</p></div>
+<div class="chk"><svg class="chk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p class="chk-text">Explains every plan change in plain language</p></div>
+</div>
+<div class="col">
+<h3 class="sub">Stretch goals</h3>
+<div class="chk"><svg class="chk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p class="chk-text">Blocked routes and changed priorities</p></div>
+<div class="chk"><svg class="chk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p class="chk-text">Plans around fuel: a 10% reserve and a fuel truck</p></div>
+<div class="chk"><svg class="chk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p class="chk-text">Beats first come, first served on travel and idle time</p></div>
+<div class="chk"><svg class="chk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p class="chk-text">“Why?” on every assignment</p></div>
+<div class="chk"><svg class="chk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p class="chk-text">Connected to AgOpenWeb: four real instances</p></div>
+</div>
+</div>
+<p class="lede">Live demo next: we break a tractor mid-job and you watch it recover.</p>
+</div>
+<div class="foot">
+<p class="foot-text">Hand-in: code, README, scenario, event log and baseline comparison are in the repo</p>
+<div class="pg"></div>
+</div>
+<aside>Speaker 2. Everything in the brief is done: all five must-haves and all five stretch goals. Do not read the list. Say: you asked for five things and five stretch goals, they are all here, and rather than tell you, we will show you. Then switch to the live status page and run the demo: add a job, point at the fleet cards, break T1, show the hand-over and the plain-language plan change, press Why?. About 10 seconds on this slide, then about 1 minute 45 on the demo.</aside>
+</section>
+<section id="spray" class="slide light" data-transition="fade">
+<p class="eyebrow">TRACK 1 · SPRAY OR WAIT</p>
+<h2 class="title">Spray or Wait, answered in the same run</h2>
+<div class="body">
+<div class="split-spray grow">
+<div class="col">
+<div class="block">
+<h3 class="sub">A drone above the sprayer</h3>
+<p class="card-text">While a tractor sprays, the drone flies above it and reads the wind at 10 m, 30 m and 50 m.</p>
+</div>
+<div class="block">
+<h3 class="sub">Two heights, three checks</h3>
+<p class="card-text">Air at 2 m and 10 m, every plan minute: inversion, wind and shear. The answer is Go, Caution or Stop, with the reason and the numbers.</p>
+</div>
+<div class="block">
+<h3 class="sub">Stop means stop</h3>
+<p class="card-text">A Stop holds every spray job where it stands, and releases it when the air recovers.</p>
+</div>
+<p class="lede">Here a ground station alone would say Go. The second height caught the inversion.</p>
+</div>
+<img class="shot-card" src="img/spray-card.png" alt="Spray conditions card from the live run: Stop at 12:30 for a temperature inversion, readings at 2 m and 10 m, drone readings above tractor T1 at 10 m and 30 m, and the note that a single ground station would say Go" style="width:590px;height:628px;object-fit:contain">
+</div>
+</div>
+<div class="foot">
+<p class="foot-text">Source: agopen/weather.js · agopen/drone.js · weather feed and drone are simulated</p>
+<div class="pg"></div>
+</div>
+<aside>We also answer Track 1, Spray or Wait, in the same run. While a tractor is spraying, the drone flies above it and reads the wind at 10, 30 and 50 metres. The coordinator reads the air at 2 and 10 metres every plan minute and checks for an inversion, wind that is too light or too strong, and shear between the heights. The answer is Go, Caution or Stop, always with the reason and the numbers, and every change is time-stamped in a log. A Stop holds every spray job where it stands. On the right is a real capture: a ground station alone would have said Go, and the second height caught the inversion. If asked: the Go, Caution or Stop decision uses the two mast heights; the drone readings are shown beside it. The weather feed and the drone are simulated. (About 25 seconds.)</aside>
+</section>
+<section id="ai-team" class="slide dark" data-transition="fade">
+<p class="eyebrow">THE AI TEAM</p>
+<h2 class="title">One shared memory, one conversation</h2>
+<div class="body">
+<div class="split-rt grow">
+<div class="col">
+<div class="block">
+<h3 class="sub">Shared memory</h3>
+<p class="card-text">Every manager reads the same record of the farm and writes only its own part. Every change goes to one log file.</p>
+</div>
+<div class="block">
+<h3 class="sub">They talk</h3>
+<p class="card-text">On every event the managers speak at a roundtable you can read on the dashboard.</p>
+</div>
+<div class="block">
+<h3 class="sub">They decide</h3>
+<p class="card-text">The chair can change a priority, approve a late finish or defer a job. No manager can release a tractor: a person presses Good to go.</p>
+</div>
+</div>
+<div class="stack">
+<div class="row"><p class="row-name">Fault Manager</p><p class="row-text">Real fault, or a recovery?</p></div>
+<div class="row"><p class="row-name">Fleet Manager</p><p class="row-text">Who is free, low on fuel, wrongly fitted</p></div>
+<div class="row"><p class="row-name">Route Manager</p><p class="row-text">Field coverage and lane routes</p></div>
+<div class="row"><p class="row-name">Safety Officer</p><p class="row-text">Objects when tractors get close</p></div>
+<div class="row"><p class="row-name">Depot Manager</p><p class="row-text">People’s work at the depot</p></div>
+<div class="row"><p class="row-name">Weather Manager</p><p class="row-text">Is spraying allowed, and why</p></div>
+<div class="row row-hot"><p class="row-name">Plan Manager</p><p class="row-text">The chair: decides what happens to the plan</p></div>
+</div>
+</div>
+</div>
+<div class="foot">
+<p class="foot-text">Source: agopen/roundtable · agents/</p>
+<div class="pg"></div>
+</div>
+<aside>This is the AI layer. Each manager is a language model plus one instructions file, with one job for the whole fleet. They share one memory: every manager can read all of it, each writes only its own keys, and every message and memory write goes to one durable log file. On each event they talk it through at a roundtable you can read on the dashboard, and the chair decides: change a priority, approve a late finish or defer a job. The planner has already acted by then, so the managers never delay a tractor, and none of them can release a tractor at the depot. (Speaker 3, about 30 seconds.)</aside>
+</section>
+<script>function fit(){document.body.style.zoom=Math.min(1,innerWidth/1920)}addEventListener('resize',fit);fit()</script></body></html>
