@@ -541,6 +541,7 @@ const optionText = (o) => (o.choice === 'truck'
   ? `Going via the depot adds ${o.extraM} m for the tractor: ${o.depotMin} min of its day and ${o.depotFuelPct}% of a tank, about ${usd(o.depotCost)}. The fuel truck's round trip is ${o.truckM} m, about ${usd(o.truckCost)}. The truck is cheaper by about ${usd(o.saved)}.`
   : `The depot is close to its way (${o.extraM} m extra, about ${usd(o.depotCost)}) against about ${usd(o.truckCost)} for the fuel truck's ${o.truckM} m round trip. It refuels at the depot.`);
 
+const truckBusy = () => !!fuelMission && fuelMission.phase !== 'returning';     // on its way home it can be turned round
 function fuelPlanning() {
   if (!truckReady()) return;
   const assign = sim.dispatcher.plan?.assign || {};
@@ -549,7 +550,17 @@ function fuelPlanning() {
     if (t.status !== 'ok' || u.fault) continue;
     const reserve = t.fuelCapacity * RESERVE_FRAC;
     // 1. Look ahead: will this tractor need fuel when its current job ends?
-    if (!fuelMission && t.action?.kind === 'work' && t.jobId && u.place === sim.jobs.get(t.jobId).fieldId) {
+    // A tractor already stopped and waiting in a field must always have the truck coming to it.
+    if (u.fieldRefuel && !(truckBusy() && fuelMission.u === u)) {
+      if (!truckBusy()) {
+        const o = { ...fuelOptions(u, u.fieldRefuel.field, u.fieldRefuel.field), fuelPctNow: Math.round(100 * t.fuel / t.fuelCapacity) };
+        fuelMission = { u, job: null, field: u.fieldRefuel.field, phase: 'to-field', numbers: o, startedAt: fmtTime(sim.time) };
+        truck.trip = null;
+        trail('fuel-planner', 'fuel truck', 'fuel', `${u.id} is stopped in ${sim.fields.get(u.fieldRefuel.field)?.name} at ${o.fuelPctNow}% fuel, waiting. Sending the fuel truck to it now.`, { tractor: u.id, ...o });
+      }
+      continue;
+    }
+    if (!truckBusy() && t.action?.kind === 'work' && t.jobId && u.place === sim.jobs.get(t.jobId).fieldId) {
       const job = sim.jobs.get(t.jobId), r = routes.get(job.id);
       const e = u.eta;
       if (r && e?.burnPerMin > 0 && e.out?.jobDoneInMin != null) {
@@ -561,7 +572,7 @@ function fuelPlanning() {
           if (o.choice === 'depot') {
             if (u.fuelNote !== job.id + ':mid') { u.fuelNote = job.id + ':mid'; trail('fuel-planner', 'planner', 'fuel', lead + optionText(o), { tractor: u.id, ...o }); }
           } else if (leaveIn <= o.truckMin / 2 + 2) {
-            fuelMission = { u, job: job.id, field: job.fieldId, phase: 'to-field', numbers: o, startedAt: fmtTime(sim.time) };
+            fuelMission = { u, job: job.id, field: job.fieldId, phase: 'to-field', numbers: o, startedAt: fmtTime(sim.time) }; truck.trip = null;
             const text = lead + optionText(o) + ` Sending it to ${sim.fields.get(job.fieldId).name} now so it is there when ${u.id} gets down to its reserve.`;
             trail('fuel-planner', 'fuel truck', 'fuel', text, { tractor: u.id, ...o });
             discuss('service-request', `Fuel truck to ${u.id}`, { tractor: u.id, work: `refuel ${u.id} in the field from the fuel truck`, state: text, options: o });
@@ -587,7 +598,7 @@ function fuelPlanning() {
       }
       const minutesToEnd = left / ratePerMin(t, job.type);
       if (minutesToEnd > o.truckMin / 2 + 2) continue;                                                // not yet: leave so the truck arrives as the job ends
-      fuelMission = { u, job: job.id, field: job.fieldId, phase: 'to-field', numbers: o, startedAt: fmtTime(sim.time) };
+      fuelMission = { u, job: job.id, field: job.fieldId, phase: 'to-field', numbers: o, startedAt: fmtTime(sim.time) }; truck.trip = null;
       const text = lead + optionText(o) + ` Sending it to ${sim.fields.get(job.fieldId).name} now so it arrives as the job ends.`;
       trail('fuel-planner', 'fuel truck', 'fuel', text, { tractor: u.id, ...o });
       discuss('service-request', `Fuel truck to ${u.id}`, { tractor: u.id, work: `refuel ${u.id} in the field from the fuel truck`, state: text, options: o });
@@ -595,9 +606,9 @@ function fuelPlanning() {
     // 2. The planner has just sent this tractor to the depot for fuel while it is out at a field.
     //    If the truck is already coming for it, or is the cheaper option, it stays put and is refuelled there.
     if (!u.fieldRefuel && t.action?.kind === 'goto' && t.action.purpose === 'refuel' && u.place !== 'depot') {
-      const mine = fuelMission && fuelMission.u === u;
+      const mine = truckBusy() && fuelMission.u === u;
       if (!mine) {
-        if (fuelMission) continue;                                                                     // the truck is busy: go to the depot as planned
+        if (truckBusy()) continue;                                                                     // the truck is busy: go to the depot as planned
         const wait = planMin(laneLen('depot', u.place) + 60, TRUCK_KPH);
         const next = (assign[t.id] || []).map(x => sim.jobs.get(x?.id ?? x)).find(j => j && j.status !== 'done');
         const o = { ...fuelOptions(u, u.place, next?.fieldId, wait), fuelPctNow: Math.round(100 * t.fuel / t.fuelCapacity) };
@@ -607,7 +618,7 @@ function fuelPlanning() {
           trail('fuel-planner', 'planner', 'fuel', `${u.id} needs fuel now, at ${o.fuelPctNow}%. ` + optionText(o) + ` The truck figure includes ${o.waitMin} min of the tractor waiting for it.`, { tractor: u.id, ...o });
           continue;
         }
-        fuelMission = { u, job: null, field: u.place, phase: 'to-field', numbers: o, startedAt: fmtTime(sim.time) };
+        fuelMission = { u, job: null, field: u.place, phase: 'to-field', numbers: o, startedAt: fmtTime(sim.time) }; truck.trip = null;
         const text = `${u.id} needs fuel now, at ${o.fuelPctNow}%. ` + optionText(o) + ` That includes ${o.waitMin} min waiting for the truck. Sending it.`;
         trail('fuel-planner', 'fuel truck', 'fuel', text, { tractor: u.id, ...o });
         discuss('service-request', `Fuel truck to ${u.id}`, { tractor: u.id, work: `refuel ${u.id} in the field from the fuel truck`, state: text, options: o });
@@ -737,7 +748,7 @@ function truckTick() {
     }
     if (m.phase === 'returning') {
       tg = { ...tripTarget(truck, 'depot'), label: 'lane back to the depot', maxKph: TRUCK_KPH };
-      if (truck.place === 'depot' && Math.hypot(truck.tel.e - truck.bay.e, truck.tel.n - truck.bay.n) < 6) fuelMission = null;
+      if (Math.hypot(truck.tel.e - truck.bay.e, truck.tel.n - truck.bay.n) < 8) { truck.place = 'depot'; truck.trip = null; fuelMission = null; }
     }
   }
   const cmd = { type: tg.maxKph === 0 ? 'goto' : 'goto', e: +tg.e.toFixed(2), n: +tg.n.toFixed(2), label: tg.label, maxKph: tg.maxKph };

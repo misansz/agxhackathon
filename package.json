@@ -1,1 +1,14 @@
-{"type":"module","scripts":{"test":"node --test agopen/test/"},"dependencies":{"@anthropic-ai/sdk":"^1.8.0","ws":"^8.23.0"}}
+{
+  "type": "module",
+  "scripts": {
+    "test": "node --test agopen/test/",
+    "demo": "node agopen/start-anywhere.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "ws": "^8.23.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

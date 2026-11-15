@@ -8,6 +8,115 @@ A coordinator that assigns field jobs to a small fleet of autonomous tractors, r
 
 **Stack:** Node.js 18+. The planner, simulator and CLI have no dependencies; the dashboard server uses the Anthropic SDK for optional Claude explanations, and the 3D view loads three.js from a CDN. The same coordinator code runs in the CLI, live in the browser, and against AgOpenWeb.
 
+## Get it running
+
+There are three ways to run this, from least to most set-up. All of them need [Node.js](https://nodejs.org) 18 or later.
+
+| | What you get | Needs | Time |
+|---|---|---|---|
+| **1. Live dashboard, any computer** | The operator dashboard, planner, assistant, drone and fuel truck, with stand-in vehicles | Node.js | 2 minutes |
+| **2. Full demo on AgOpenGPS** | The same, with every vehicle driven in its own AgOpenWeb (AgOpenGPS) simulator | macOS, Node.js, .NET 10 SDK | about 15 minutes, once |
+| **3. Planner on its own** | The planner against the first-come-first-served baseline, in the terminal, plus the 3D Command Center | Node.js | 1 minute |
+
+### 1. Live dashboard on any computer
+
+```bash
+git clone https://github.com/misansz/agxhackathon.git
+cd agxhackathon
+npm install
+npm run demo
+```
+
+The last command writes the farm, starts four stand-in vehicles (tractors T1, T2, T3 and the fuel truck) and the coordinator, and opens the dashboard at http://localhost:5190. Stop everything with Ctrl+C.
+
+Things to try, in order:
+
+1. Each field on the map says what is on it ("Corn — estimated harvest in 36 days", "Empty — needs tilling").
+2. Press **Plan jobs**, click a field's action ("Plow and sow", "Sow ..."), close, press **Start the day**. Or switch on **Let the AI drive**.
+3. When **Needs a person** lights up, a tractor is locked at the depot for fuel or an implement change. Press **Good to go**.
+4. Break a tractor: open its **Detail** line under Fleet and press **Inject: GO but not moving**. Watch **Latest plan change** explain who took the work and why. Press **Why?** on any job.
+5. Press **Ask the assistant** and type "What is North Field like?".
+
+Options: `npm run demo -- --speed 3` (vehicles three times faster), `--fresh` (new random mix of fields), `--page 5200` (another port), `--no-open`. Anything else goes to the coordinator, for example `--weather calm`.
+
+The assistant and the roundtable of AI managers use Claude when an API key is set, and plain rule-written text when it is not. Set it before starting:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...        # macOS, Linux
+$env:ANTHROPIC_API_KEY = "sk-ant-..."      # Windows PowerShell
+```
+
+The 3D view and the drone camera load three.js from the internet.
+
+Tested: from a fresh clone on macOS with Node 20 (the farm came up, a job ran to 28%, the assistant answered). Not tested on Windows or Linux; the launcher is plain Node. On Windows there is also `agopen\start-demo-windows.cmd`, which opens one window per vehicle so you can type `stuck`, `dead` or `ok` into it.
+
+In this mode the vehicles are stand-ins (`agopen/mock-node.js`): they take the same commands and send the same telemetry as the real ones, but move by their own simple model, and the small vehicle windows on the dashboard show a placeholder.
+
+### 2. Full demo on AgOpenGPS (macOS)
+
+Each vehicle is a real AgOpenWeb copy (the web build of AgOpenGPS) running its own simulator; the coordinator reads the fields and implements from it and drives it. AgOpenWeb normally allows one copy per computer, so a small patch (four changes, described in [`agopen/README.md`](agopen/README.md#set-up-once)) lets four run side by side.
+
+You need macOS, Node.js 18+, git and the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (`dotnet --version` should print 10.x).
+
+Put AgOpenWeb next to this repository, so the folders sit side by side:
+
+```
+some-folder/
+  agxhackathon/     this repository
+  AgOpenWeb/        AgOpenWeb's source, patched
+  agopen-multi/     created by the build: the patched program and one data folder per vehicle
+```
+
+From `some-folder`:
+
+```bash
+git clone https://github.com/AgOpenGPS-Official/AgOpenWeb.git
+cd AgOpenWeb
+git checkout 682b68d9669fa207cdceab720760302afe3a871d
+git apply ../agxhackathon/agopen/agopenweb/agopenweb-multi-instance.patch
+DesktopOnly=true dotnet build Platforms/AgOpenWeb.Desktop -o ../agopen-multi/bin
+cd ../agxhackathon
+npm install
+agopen/start-demo.sh
+```
+
+`start-demo.sh` writes the farm into each AgOpenWeb copy, starts the four copies, opens a Terminal window per vehicle (telemetry every second) and one for the coordinator, opens the dashboard, and runs a preflight check. Wait for `All checks passed. Ready to demo.`
+
+- The first time, macOS asks whether the launcher may control Terminal. Allow it: that is how the windows are opened.
+- Stop everything: `agopen/start-demo.sh stop`
+- Start with a new random mix of fields: `FRESH=1 agopen/start-demo.sh`
+- Check a running demo again: `node agopen/preflight.js`
+- Inject a fault: type `stuck` or `dead` in a tractor's Terminal window (`ok` to recover), or use the buttons in its Detail line on the dashboard.
+- The five-minute run of show is at the top of [`agopen/DEMO.md`](agopen/DEMO.md); everything else about the live mode is in [`agopen/README.md`](agopen/README.md).
+
+Checked on 15 November 2026 (macOS, .NET 10.0.404): the patch applies to a clean checkout of that commit and the build finishes with 0 errors. The first build downloads packages and takes a few minutes. The launch itself was run many times from an earlier build of the same patched source, not from that fresh build.
+
+### 3. Planner on its own
+
+No browser and no vehicles: the planner and the first-come-first-served baseline run the same scripted day and write the logs and the comparison to `out/`.
+
+```bash
+node cli.js                 # coordinator against the baseline, with scripted breakdowns and closures
+node cli.js --why J13       # why a job is where it is
+node serve.js               # the 3D Command Center at http://localhost:5180
+npm test                    # the live mode's tests
+```
+
+More commands are under [Run it](#run-it) below.
+
+### If something goes wrong
+
+| What you see | What to do |
+|---|---|
+| "Packages are not installed yet" | Run `npm install` in the repository folder. |
+| "... did not start. Is another copy already running on that port?" | Stop the other copy (Ctrl+C in its terminal, or `agopen/start-demo.sh stop`), or use `npm run demo -- --page 5200 --base 5275`. |
+| "No patched AgOpenWeb build in ../agopen-multi/bin" | The build step in section 2 has not been run, or AgOpenWeb is not next to this repository. |
+| "AgOpenWeb did not start on port 5175" | Look at `../agopen-multi/tractor-5175.log`. Usually .NET 10 is missing: check `dotnet --version`. |
+| The assistant says it could not reach its language model | Set `ANTHROPIC_API_KEY` and check the internet connection. Everything else keeps working. |
+| The 3D view or drone camera is blank | They need the internet for three.js. |
+| A vehicle stops making progress, or anything looks stuck | Press **Start over** on the dashboard (fields keep their state). For a clean slate relaunch with `FRESH=1 agopen/start-demo.sh` or `npm run demo -- --fresh`. |
+| "No telemetry from T2 ..." when the coordinator starts | That vehicle's process is not running. Relaunch with the launcher instead of starting the coordinator by hand. |
+
 ## Challenge checklist
 
 | Must-have | Where it is |
@@ -69,7 +178,6 @@ Headline numbers from `agopen/test/TEST_REPORT.md` (breakdown day: T1 breaks at 
 
 **Known limits**
 
-- The status page shows only the headline of each re-plan. The line for each moved job is in the coordinator's Terminal window.
 - After a hand-over, the new tractor drives the interrupted pass again from its start.
 - Lanes do not react to a `block_route` event.
 - The 3D view and the roundtable model lines need the internet. Without it, the roundtable uses rule-written lines.

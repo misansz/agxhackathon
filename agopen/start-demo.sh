@@ -15,7 +15,9 @@ stop_all() {
   rm -f "$REPO"/agopen/out/lock-*.json
 }
 if [ "$1" = "stop" ]; then stop_all; echo "Everything stopped."; exit 0; fi
-if [ ! -x "$MULTI/bin/AgOpenWeb.Desktop" ]; then echo "No patched AgOpenWeb build in $MULTI/bin. See agopen/README.md, Set up once."; exit 1; fi
+if [ ! -x "$MULTI/bin/AgOpenWeb.Desktop" ]; then echo "No patched AgOpenWeb build in $MULTI/bin. See the README, Get it running, section 2."; exit 1; fi
+# First run: put the script that starts the AgOpenWeb copies next to the build.
+if [ ! -x "$MULTI/start-fleet.sh" ]; then cp "$REPO/agopen/agopenweb/start-fleet.sh" "$MULTI/start-fleet.sh" && chmod +x "$MULTI/start-fleet.sh"; fi
 
 echo "1/5 Stopping anything left from an earlier run..."
 stop_all
