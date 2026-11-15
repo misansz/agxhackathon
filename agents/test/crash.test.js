@@ -35,7 +35,12 @@ test('5b. kill -9 mid-run after the hold: restart posts no second hold and still
   fs.writeFileSync(scriptFile, JSON.stringify([{ at: '06:00', ...CALM_INVERSION }]));
   try {
     const a = startServer({ dataDir, runnerUrl: fake.url, scriptFile });
-    await waitFor(() => logEntries(dataDir).some(e => e.kind === 'effect_done' && e.id === 'wm:t1:hold:wm-spray'), { what: 'hold sent' });
+    // Kill only once both the hold and its message are logged as sent; a call still in flight at
+    // the kill is (correctly) retried once on restart, which is test 5c's case, not this one.
+    await waitFor(() => {
+      const done = logEntries(dataDir).filter(e => e.kind === 'effect_done').map(e => e.id);
+      return done.includes('wm:t1:hold:wm-spray') && done.some(id => id.startsWith('say:'));
+    }, { what: 'hold and message sent' });
     fake.clock = '06:05';
     await kill(a);
     assert.equal(fake.holdPosts().length, 1);
